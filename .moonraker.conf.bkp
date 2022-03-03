@@ -62,12 +62,13 @@ pin: gpio27
 off_when_shutdown: True
 locked_while_printing: True
 restart_klipper_when_powered: True
-initial_state: off
+initial_state: on
 
 [power licht]
 type: gpio
 pin: gpio4
 off_when_shutdown: false
 initial_state: off
-[ledcontrol]
-address: http://localhost:8000
+
+#[ledcontrol]
+#address: http://localhost:8000
