@@ -40,7 +40,7 @@ variable_sensor_to_nozzle: 60.5
 # ==== Values to tune ====         
 #
 # Tool position for the selector. This has to be tuned manually. Please scale this array to the number of tools you have
-variable_colorselector = [2.1, 22.4, 44.0]
+variable_colorselector = [2.4, 23.2, 44.8, 70.4, 92.0, 112.7]
 #variable_colorselector = [2.6, 22.4, 43.2, 70.4, 91.2, 112.8]
 # Base value for the loading length used by the auto-calibration macro
 # Please use a value SMALLER than the real reverse bowden length (like 50mm less)
