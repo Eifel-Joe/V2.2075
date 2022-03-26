@@ -337,9 +337,9 @@ gcode:
     SET_FILAMENT_SENSOR SENSOR=encoder_sensor ENABLE=0
     {% if printer["gcode_macro _ERCF_SELECT_TOOL"].color_selected|int != params.TOOL|int %}
         # Add a variable 'SwapCounter' in your PRINT_START macro to display this info
-         {% set newcounter = (printer["gcode_macro PRINT_START"].swapcounter|int + 1) %}
-         SET_GCODE_VARIABLE MACRO=PRINT_START VARIABLE=swapcounter VALUE={newcounter}
-         M118 Swap {newcounter|int}
+        # {% set newcounter = (printer["gcode_macro PRINT_START"].swapcounter|int + 1) %}
+        # SET_GCODE_VARIABLE MACRO=PRINT_START VARIABLE=swapcounter VALUE={newcounter}
+        # M118 Swap {newcounter|int}
         M117 Change Tool T{params.TOOL|int}
         _ERCF_UNLOAD_TOOL
         _ERCF_LOAD_TOOL TOOL={params.TOOL|int}
@@ -433,14 +433,11 @@ gcode:
         {% if printer["gcode_macro _ERCF_SELECT_TOOL"].color_selected|int != -1 %}
             M118 Unload tool {printer["gcode_macro _ERCF_SELECT_TOOL"].color_selected|int} ...
             G1 E-10.00 F1200.0
-            G1 E-{printer["gcode_macro _ERCF_VAR"].end_of_bowden_to_sensor|float + 20.0} F2000   #JE changed to 35 from 20
-            {% if printer['filament_switch_sensor toolhead_sensor'].filament_detected == True %} #JE
-               M118 Filament is still in Extruder after ERCF_UNLOAD_TOOL                         #JE
-            {% endif %}                                                                          #JE
+            G1 E-{printer["gcode_macro _ERCF_VAR"].end_of_bowden_to_sensor|float + 20.0} F2000
             _ERCF_SELECT_TOOL TOOL={printer["gcode_macro _ERCF_SELECT_TOOL"].color_selected|int}
             {% set ercf_params = printer.save_variables.variables %}
             ERCF_SET_STEPS RATIO={ercf_params['ercf_calib_%s' % (printer["gcode_macro _ERCF_SELECT_TOOL"].color_selected|string)]}
-            G4 P50
+            G4 P500
             _ERCF_EXTRACT_FROM_EXTRUDER
             {% set ercf_params = printer.save_variables.variables %}
             ERCF_UNLOAD LENGTH={ercf_params.ercf_calib_ref|float - printer["gcode_macro _ERCF_VAR"].end_of_bowden_to_sensor|float + printer["gcode_macro _ERCF_VAR"].unload_modifier|float - 20.0}
@@ -454,10 +451,12 @@ gcode:
 [gcode_macro _ERCF_EXTRACT_FROM_EXTRUDER]
 description: Extract the tip at the parking position from the extruder
 gcode:
+    #G4 P200
     {% if printer['filament_switch_sensor toolhead_sensor'].filament_detected == True %}
         M118 Filament still below the extruder... Trying extraction again...
         G1 E-5.00 F1200.0
         G1 E-{printer["gcode_macro _ERCF_VAR"].end_of_bowden_to_sensor|float + 25.0} F2000
+        G4 P100
         _ERCF_RETRY_EXTRACT_FROM_EXTRUDER
     {% else %}
         G91
@@ -574,22 +573,22 @@ gcode:
 [gcode_macro _ERCF_FORM_TIP_STANDALONE]
 description: Generic tip forming macro
 gcode:
-    {% set COOLING_TUBE_LENGTH = params.COOLING_TUBE_LENGTH|default(10) %} # Dragon ST: 15, Dragon HF: 10, Mosquito: 20
-    {% set COOLING_TUBE_RETRACTION = params.COOLING_TUBE_RETRACTION|default(30) %} # Dragon ST: 35, Dragon HF: 30, Mosquito: 38
+    {% set COOLING_TUBE_LENGTH = params.COOLING_TUBE_LENGTH|default(15) %} # Dragon ST: 15, Dragon HF: 10, Mosquito: 20
+    {% set COOLING_TUBE_RETRACTION = params.COOLING_TUBE_RETRACTION|default(35) %} # Dragon ST: 35, Dragon HF: 30, Mosquito: 38
     {% set INITIAL_COOLING_SPEED = params.INITIAL_COOLING_SPEED|default(10) %}
     {% set FINAL_COOLING_SPEED = params.FINAL_COOLING_SPEED|default(50) %}
-    {% set COOLING_MOVES = params.COOLING_MOVES|default(6) %}
-    {% set TOOLCHANGE_TEMP = params.TOOLCHANGE_TEMP|default(240) %}
-    {% set USE_SKINNYDIP = params.USE_SKINNYDIP|default(1) %}
+    {% set COOLING_MOVES = params.COOLING_MOVES|default(5) %}
+    {% set TOOLCHANGE_TEMP = params.TOOLCHANGE_TEMP|default(0) %}
+    {% set USE_SKINNYDIP = params.USE_SKINNYDIP|default(0) %}
     {% set USE_FAST_SKINNYDIP = params.USE_FAST_SKINNYDIP|default(1) %}
-    {% set SKINNYDIP_DISTANCE = params.SKINNYDIP_DISTANCE|default(31) %}
+    {% set SKINNYDIP_DISTANCE = params.SKINNYDIP_DISTANCE|default(26) %}
     {% set DIP_INSERTION_SPEED = params.DIP_INSERTION_SPEED|default(33) %}
     {% set DIP_EXTRACTION_SPEED = params.DIP_EXTRACTION_SPEED|default(70) %}
     {% set MELT_ZONE_PAUSE = params.MELT_ZONE_PAUSE|default(0) %}
     {% set COOLING_ZONE_PAUSE = params.COOLING_ZONE_PAUSE|default(0) %}
-    {% set UNLOADING_SPEED_START = params.UNLOADING_SPEED_START|default(100) %}
+    {% set UNLOADING_SPEED_START = params.UNLOADING_SPEED_START|default(199) %}
     {% set UNLOADING_SPEED = params.UNLOADING_SPEED|default(20) %}
-    {% set RAMMING_VOLUME = params.RAMMING_VOLUME|default(23) %} # in mm3
+    {% set RAMMING_VOLUME = params.RAMMING_VOLUME|default(0) %} # in mm3
     {% set INITIAL_RETRACT = params.INITIAL_RETRACT|default(0) %} # Use an initial retract or not. Don't use it if you want to ram the filament
     {% set FINAL_EJECT = params.FINAL_EJECT|default(0) %} # Fully eject the filament afterwards, default is no
 
@@ -621,9 +620,6 @@ gcode:
     G1 E{0.5956 * RATIO|float} F544 #6
     G1 E{0.4555 * RATIO|float} F544 #6
     G1 E{1.0662 * RATIO|float} F552 #4
-    M400
-    M114
-    M118 Position Extruder after Ramming {printer.gcode_move.position.e|float} #JE
 
     # set toolchange temperature just prior to filament being extracted from melt zone and wait for set point
     # (SKINNYDIP--normal mode only)
@@ -633,14 +629,10 @@ gcode:
 
     # Retraction
     {% set TOTAL_RETRACTION_DISTANCE = COOLING_TUBE_RETRACTION|float + COOLING_TUBE_LENGTH|float / 2 - 15 %}
-    M118 Total Retraction Distance {TOTAL_RETRACTION_DISTANCE}
     G1 E-15 F{1.0 * UNLOADING_SPEED_START|float * 60}
     G1 E-{0.7 * TOTAL_RETRACTION_DISTANCE} F{1.0 * UNLOADING_SPEED|float * 60}
     G1 E-{0.2 * TOTAL_RETRACTION_DISTANCE} F{0.5 * UNLOADING_SPEED|float * 60}
     G1 E-{0.1 * TOTAL_RETRACTION_DISTANCE} F{0.3 * UNLOADING_SPEED|float * 60}
-    M400
-    M114
-    M118 Position Extruder after Retraction {printer.gcode_move.position.e|float} #JE
 
     {% if TOOLCHANGE_TEMP|float > 0 and USE_FAST_SKINNYDIP|int == 1 %}
        M104 S{TOOLCHANGE_TEMP}
@@ -674,11 +666,8 @@ gcode:
         G92 E0
         G1 E-80 F3000
     {% endif %}
-    M114
-    M118 Extruder Position after Tip-Forming {printer.gcode_move.position.e|float} #JE
+
     G92 E0
-    M114
-    M118 New position Extruder {printer.gcode_move.position.e|float} #JE
 
 # Unload from extruder with tip forming sequence
 [gcode_macro _ERCF_UNLOAD_FILAMENT_IN_EXTRUDER_WITH_TIP_FORMING]
@@ -690,10 +679,8 @@ gcode:
                 M118 Forming filament tip and Unloading Filament...
                 G91
                 _ERCF_FORM_TIP_STANDALONE
-                G1 E-5.00 F1200.0 #JE changed from 5 to 10
+                G1 E-5.00 F1200.0
                 G1 E-{printer["gcode_macro _ERCF_VAR"].end_of_bowden_to_sensor|float + 15.00 + 20.00} F2000
-                M114
-                M118 Extruder Position before Servo Down {printer.gcode_move.position.e|float}  #JE
                 # Add sensor check with a loop to retry once
                 _ERCF_SERVO_DOWN
                 _ERCF_EXTRACT_FROM_EXTRUDER
@@ -968,4 +955,3 @@ gcode:
     {% else %}
         M118 ERCF is currently paused. Please use ERCF_UNLOCK
     {% endif %}
-
