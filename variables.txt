@@ -21,6 +21,6 @@ rough = 0.06
 service = 1
 sheet = 0
 smooth = 0.19
-time = 112
+time = 110
 user_offset = 0.11
 
