@@ -18,9 +18,9 @@ ercf_most_swaps = 314
 ercf_swaps = 0
 ercf_total_swaps = 0
 rough = 0.06
-service = 1
+service = 0
 sheet = 0
 smooth = 0.19
-time = 275
+time = 0
 user_offset = 0.11
 
