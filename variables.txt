@@ -16,11 +16,11 @@ ercf_current_pos = 3.3
 ercf_current_tool = 0
 ercf_most_swaps = 314
 ercf_swaps = 0
-ercf_total_swaps = 0
+ercf_total_swaps = 25
 rough = 0.0
 service = 1
-sheet = 1
+sheet = 0
 smooth = 0.05
 time = 0
-user_offset = 0.05
+user_offset = -0.07
 
