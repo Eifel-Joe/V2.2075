@@ -15,12 +15,12 @@ ercf_calib_ref = 1038.713442
 ercf_current_pos = 44.8
 ercf_current_tool = 2
 ercf_most_swaps = 314
-ercf_swaps = 1
-ercf_total_swaps = 26
+ercf_swaps = 0
+ercf_total_swaps = 27
 rough = 0.0
 service = 1
 sheet = 0
 smooth = 0.05
-time = 127
+time = 64
 user_offset = -0.07
 
