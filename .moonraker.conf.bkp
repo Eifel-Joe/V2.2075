@@ -57,7 +57,7 @@ type = gpio
 pin = gpio27
 off_when_shutdown = True
 locked_while_printing = True
-restart_klipper_when_powered = True
+restart_klipper_when_powered = false
 initial_state = off
 
 [power Licht]
