@@ -22,5 +22,5 @@ service = 1
 sheet = 0
 smooth = 0.05
 time = 63
-user_offset = 0.02
+user_offset = -0.01
 
